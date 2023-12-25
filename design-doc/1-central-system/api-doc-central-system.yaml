@@ -1,0 +1,387 @@
+openapi: 3.0.3
+info:
+  title: Central System APIs
+  description: |
+    Central system APIs are designed for (1) complete the request in Datanet Growth Protocol; (2) complete the request in Datanet Access protocol; and (3) supporting functions in workbench.
+  version: "1.0"
+servers:
+  - url: /api/v1
+
+paths:
+  /growth/connection:
+    post:
+      tags:
+        - Datanet Growth
+      summary: Data System Connection
+      description: Request from data system to central system
+      requestBody:
+        description: Data System Metadata
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  type: object
+                  properties:
+                    version:
+                      type: string
+                      enum:
+                        - Datanet 1.0
+                  required:
+                    - version
+                body:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    adapterClassName:
+                      type: string
+                    endpoint:
+                      type: string
+                    desc:
+                      type: string
+                    paramsDef:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          type:
+                            type: string
+                  required:
+                    - name
+                    - adapterClassName
+                    - endpoint
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                name: odps-citybrain
+                desc: a big data processing system
+                adapterClassName: odps-apsara-3.16
+                endpoint: http://172.25.205.111/api
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message: 
+                    type: string
+                  dataAddress:
+                    type: string
+                required:
+                  - code
+                  - dataAddress
+              example:
+                code: 200
+                dataAddress: yunqi.A1B2C3D4E5F6
+  /growth/modification:
+    post:
+      tags:
+        - Datanet Growth
+      summary: Data System Modification
+      description: Request from data system to central system
+      requestBody:
+        description: Data System Metadata
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  type: object
+                  properties:
+                    version:
+                      type: string
+                      enum:
+                        - datanet 1.0
+                  required:
+                    - version
+                body:
+                  type: object
+                  properties:
+                    dataAddress:
+                      type: string
+                    name:
+                      type: string
+                    adapterClassName:
+                      type: string
+                    endpoint:
+                      type: string
+                    desc:
+                      type: string
+                    paramsDef:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          type:
+                            type: string
+                  required:
+                    - dataAddress
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                dataAddress: yunqi.A1B2C3D4E5F6
+                desc: a big data processing system
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message: 
+                    type: string
+                required:
+                  - code
+              example:
+                code: 200
+  /growth/disconnection:
+    post:
+      tags:
+        - Datanet Growth
+      summary: Data System Disconnection
+      description: Request from data system to central system
+      requestBody:
+        description: Data System Address
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  type: object
+                  properties:
+                    version:
+                      type: string
+                      enum:
+                        - Datanet 1.0
+                  required:
+                    - version
+                body:
+                  type: object
+                  properties:
+                    dataAddress:
+                      type: string
+                  required:
+                    - dataAddress
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                dataAddress: yunqi.A1B2C3D4E5F6
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message: 
+                    type: string
+                required:
+                  - code
+              example:
+                code: 200
+  /access/getMetadata:
+    get:
+      tags:
+        - Datanet Access
+      summary: Get metadata from central system.
+      description: This API gets metadata from central system. If the requested data address does not belong to this central system, the central system will need to query the data address from blockchain system. Details refer to Datanet Access Protocol and Interconnection Protocol.
+      parameters:
+        - in: header
+          name: x-datanet-version
+          description: this is the Datanet protocol version
+          required: true
+          schema:
+            type: string
+            enum: 
+              - Datanet 1.0
+        - in: query
+          name: dataAddress
+          description: pass a data address string for looking up its metadata
+          required: true
+          schema:
+            type: string
+          example: "yunqi.15A5C76E1E021000"
+            
+         
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: odps in citybrain
+                      adapterClass:
+                        type: string
+                        example: odps-apsara-3.16
+                      endpoint:
+                        type: string
+                        example: http://1.2.3.4/api
+                      desc:
+                        type: string
+                        example: a big data process system
+                      paramsDef:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                    required:
+                    - name
+                    - adapterClass
+                    - endpoint
+                required:
+                - code
+        '400':
+          description: Bad operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 7001
+                  message:
+                    type: string
+                    example: 'data address not found'
+                required:
+                - code
+  /access/getData:
+    post:
+      tags:
+        - Datanet Access
+      summary: Get data from data system via central system.
+      description: This API gets metadata from data system via central system. The central system may forward the request to another central system if the client is not a central system. Central system will transform the client request using a corresponding adapter and then forward the transformed request to the requested data system.
+      requestBody:
+        description: |
+          **parameter definitions**
+          - **name:** the name of the data system (string, required)  
+          - **adapterClass:** adapter class (string, required)   
+          - **endpoint:** the network address of the data system (string, required)  
+          - **desc:** the description of the data system (string, optional)  
+          - **paramsDef:**  the business parameters definition of the data system (array of object, optional)  
+        
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                header:
+                  type: object
+                  properties:
+                    version: 
+                      type: string
+                      enum: 
+                        - Datanet 1.0
+                  required:
+                    - version
+                body:
+                  type: object
+                  properties:
+                    dataAddress:
+                      type: string
+                    allowForwarding:
+                      type: boolean
+                    params:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          type:
+                            type: object
+                  required:
+                  - dataAddress
+              required:
+                - header
+                - body  
+            example:
+              header:
+                version: Datanet 1.0
+              body:
+                dataAddress: dfksadjfkaj
+                allowForwarding: True
+                params:
+                  - name: ak
+                    value: saqwadd
+                  - name: sk
+                    value: acadada
+                  - name: sql
+                    value: select * from employee limit 2
+   
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                required:
+                - code
+              example:
+                code: 200
+                message: ok
+                data:
+                  - 
+                    - name
+                    - age
+                  -
+                    - alex
+                    - 36
+                  -
+                    - sarah
+                    - 28

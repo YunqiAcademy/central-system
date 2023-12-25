@@ -1,0 +1,580 @@
+openapi: 3.0.3
+info:
+  title: Blockchain System APIs
+  description: |
+    Blockchain system APIs are designed according to Innterconnection Protocol. 
+  version: "1.0"
+servers:
+  - url: /api/v1
+
+paths:
+  /centralsystem/connection:
+    post:
+      tags:
+        - Connect API
+      summary: connect central system to blockchain system
+      requestBody:
+        required: true 
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    endpoint:
+                      type: string
+                    desc:
+                      type: string
+                  required:
+                    - id
+                    - endpoint
+              required:
+                - header
+                - body
+              example:
+                header:
+                  version: datanet 1.0
+                body:
+                  id: yunqi
+                  endpoint: 10.0.2.2:7990
+                  desc: central system deployed at yunqi academy of engineering
+      responses:
+        "200":
+          description: central system connect blockchain system successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/okResponse"
+              example:
+                code: 200
+        "400":
+          description: bad connection request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errorResponse"
+              example:
+                code: 7410
+                message: invalid central system ID
+
+  /centralsystem/diconnection:
+    post:
+      tags:
+        - Connect API
+      summary: disconnect central system from blockchain system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                  required:
+                    - id
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                id: yunqi
+      responses:
+        "200":
+          description: disconnect central system from blockchain system successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/okResponse"
+              example:
+                code: 200
+        "400":
+          description: bad disconnection request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errorResponse"
+              example:
+                code: 7410
+                message: invalid central system ID
+  /centralststem/adapterClasses/sync:
+    post:
+      tags:
+        - Sync API
+      summary: sync adapter classes information to blockchain system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    csid:
+                      type: string
+                    adapterClasses:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          className:
+                            type: string
+                          protocol:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              version:
+                                type: string
+                            required:
+                              - name
+                          params:
+                            type: object
+                          desc:
+                            type: string
+                        required:
+                          - className
+                          - protocol
+                  required:
+                    - csid
+                    - adapterClasses
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                csid: yunqi
+                adapterClasses:
+                  - className: odps-adapter
+                    protocol:
+                      name: ODPS
+                      version: aspara1.0
+                    desc: ODPS standard adapter
+                  - className: mysql-adapter
+                    protocol:
+                      name: MySQL
+                      version: "5.7"
+                    desc: MySQL standard adapter
+      responses:
+        "200":
+          description: sync adapter classes information successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/okResponse" 
+              example:
+                code: 200
+        "400":
+          description: bad sync request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errorResponse"
+              example:
+                - code: -99021
+                - message: missing protocol name
+
+  /centralsystem/dataSystems/sync:
+    post:
+      tags:
+        - Sync API
+      summary: sync data systems metadata to blockchain system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    csid:
+                      type: string
+                    dataSystems:
+                      type: array
+                      items:
+                        "$ref": "#/components/schemas/dataSystem"
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                csid: yunqi
+                dataSystems:
+                  - dataAddress: yunqi.BCAE345BCAE345P0
+                    name: yunqi-ODPS-cluster-1000
+                    endpoint: 10.0.2.3:3367
+                    adapterClass: odps-adapter
+                  - dataAddress: yunqi.BCAE345BCAE345P1
+                    name: citybrain-cm-mysql
+                    endpoint: 10.0.2.5:6379
+                    adapterClass: mysql-adapter
+
+      responses:
+        "200":
+          description: sync data systems metadata successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/okResponse"
+              example:
+                code: 200
+        "400":
+          description: bad sync request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errorResponse"
+              example:
+                code: -99031
+                message: data system metadata missing required data
+  /centralsystem/metadata:
+    post:
+      tags:
+        - Retrieve API
+      summary: retrieve central system metadata by central system ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                  required:
+                    - id
+              required:
+                - header
+                - body
+            example:
+              id: yunqi
+      responses:
+        "200":
+          description: retrieve successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  centralsystem:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      endpoint:
+                        type: string
+                      desc:
+                        type: string
+                    required:
+                      - id
+                      - endpoint
+                required:
+                  - code
+                  - centralsystem
+              example:
+                code: 200
+                centralsystem:
+                  id: yunqi
+                  endpoint: 10.0.2.2:7990
+                  desc: central system deployed at yunqi academy of engineering
+        "404":
+          description: not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errorResponse"
+              example:
+                code: 7410
+                message: invalid central system ID
+  /centralsystem/adapterClass:
+    post:
+      tags:
+        - Retrieve API
+      summary: retrieve adapter class information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    className:
+                      type: string
+                  required:
+                    - className
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                className: odps-adapter
+      responses:
+        "200":
+          description: retrieve successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/adapterClass"
+              example:
+                className: odps-adapter
+                protocol:
+                  name: ODPS
+                  version: aspara1.0
+        "404":
+          description: not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errorResponse"
+              example:
+                code: 7411
+                message: invalid adapter class definition
+  /centralsystem/dataSystem:
+    post:
+      tags:
+        - Retrieve API
+      summary: retrieve data system metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    dataAddress:
+                      type: string
+                  required:
+                    - dataAddress
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                dataAddress: yunqi.BCAE345BCAE345P0
+      responses:
+        "200":
+          description: query successfully
+  /centralsystem/search:
+    post:
+      tags:
+        - Search API
+      summary: search central systems by adapter class name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    className:
+                      type: string
+                  required:
+                    - className
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                className: odps-adapter
+      responses:
+        "200":
+          description: search successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  centralsystems:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/centralsystem"
+              example:
+                code: 200
+                centralsystems:
+                  - id: yunqi
+                    endpoint: 10.0.2.2:7790
+  /centralsystem/adapterClass/search:
+    post:
+      tags:
+        - Search API
+      summary: search adapter classes by protocol name and protocol version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                header:
+                  "$ref": "#/components/schemas/protocolHeader"
+                body:
+                  type: object
+                  properties:
+                    protocolName:
+                      type: string
+                    protocolVersion:
+                      type: string
+                  required:
+                    - protocolName
+              required:
+                - header
+                - body
+            example:
+              header:
+                version: datanet 1.0
+              body:
+                protocolName: ODPS
+                protocolVersion: aspara1.0
+      responses:
+        "200":
+          description: search successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  adapterClasses:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - code
+                  - adapterClasses
+              example:
+                code: 200
+                adapterClasses:
+                  - odps-adapter
+
+components:
+  schemas:
+    protocolHeader:
+      type: object
+      properties:
+        version:
+          type: string
+          enum: ["datanet 1.0"]
+    okResponse:
+      type: object
+      properties:
+        code: 
+          type: integer
+      required:
+        - code
+    errorResponse:
+      type: object
+      properties:
+        code: 
+          type: integer
+        message:
+          type: string
+      required:
+       - code
+       - message
+    centralsystem:
+      type: object
+      properties:
+        id:
+          type: string
+        endpoint:
+          type: string
+        desc:
+          type: string
+      required:
+        - id
+        - endpoint
+    adapterClass:
+      type: object
+      properties:
+        className:
+          type: string
+        protocol:
+          type: object
+          properties:
+            name:
+              type: string
+            version:
+              type: string
+        params:
+          type: object
+        desc:
+          type: string
+      required:
+        - className
+        - protocol
+    dataSystem:
+      type: object
+      properties:
+        dataAddress:
+          type: string
+        name:
+          type: string
+        endpoint:
+          type: string
+        adapterClass:
+          type: string
+        params:
+          type: object          
+        desc:
+          type: string
+      required:
+        - dataAddress
+        - name
+        - endpoint
+        - adapterClass
